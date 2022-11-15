@@ -2,6 +2,7 @@ name: Trivy
 
 env:
   GITHUB_SHA: ${{ github.sha }}
+  GITHUB_REPOSITORY: ascheid/security-tools
   REGISTRY: sentinel #127893201980.dkr.ecr.ca-central-1.amazonaws.com/scan-files
 
 on:
@@ -44,3 +45,8 @@ jobs:
         run: |
           sed -i 's/pkg:apk/pkg:alpine/g' dependency-results.sbom.json
           cat dependency-results.sbom.json
+          
+      - name: upload results
+        run: |
+          curl -H 'Accept: application/vnd.github+json' -H "Authorization: token $githubPAT" 'https://api.github.com/repos/'$GITHUB_REPOSITORY'/dependency-graph/snapshots' -d dependency-results.sbom.json
+
