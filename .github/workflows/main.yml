@@ -41,12 +41,12 @@ jobs:
           --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
           --output dependency-results.sbom.json $REGISTRY/sentinel
 
-      #- name: replace apk with alpine
-       # run: |
-        #  sed -i 's/pkg:apk/pkg:alpine/g' dependency-results.sbom.json
-         # cat dependency-results.sbom.json
+      - name: replace apk with alpine
+        run: |
+          sed -i 's/pkg:apk/pkg:alpine/g' dependency-results.sbom.json
+          cat dependency-results.sbom.json
           
       - name: upload results
         run: |
-          curl -H 'Accept: application/vnd.github+json' -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" 'https://api.github.com/repos/'$GITHUB_REPOSITORY'/dependency-graph/snapshots' -d dependency-results.sbom.json
+          curl -H 'Accept: application/vnd.github+json' -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" 'https://api.github.com/repos/'$GITHUB_REPOSITORY'/dependency-graph/snapshots' -d @dependency-results.sbom.json
 
