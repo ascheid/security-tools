@@ -53,7 +53,7 @@ jobs:
       - name: run triby vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '$REGISTRY/sentinel'
+          image-ref: 'sentinel/sentinel'
           format: 'sarif'
           output: 'trivy-results.sarif'
           
