@@ -40,7 +40,6 @@ jobs:
           trivy image \
           --format github \
           --security-checks vuln \
-          --skip-db-update \
           --output dependency-results.sbom.json $REGISTRY/sentinel
 
       - name: replace apk with alpine
