@@ -35,8 +35,10 @@ jobs:
         
       - name: run trivy docker
         run: |
-          trivy sbom \
+          trivy image \
           --format github \
+          --vuln-type os,library \
+          --severity UNKNOW,LOW,MEDIUM,HIGH,CRITICAL \
           --output dependency-results.sbom.json $REGISTRY/sentinel
 
       - name: replace apk with alpine
