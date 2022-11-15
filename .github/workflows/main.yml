@@ -49,4 +49,16 @@ jobs:
       - name: upload results
         run: |
           curl -H 'Accept: application/vnd.github+json' -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" 'https://api.github.com/repos/'$GITHUB_REPOSITORY'/dependency-graph/snapshots' -d @dependency-results.sbom.json
+          
+      - name: run triby vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '$REGISTRY/sentinel'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: upload trivy scan results to gh security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
 
