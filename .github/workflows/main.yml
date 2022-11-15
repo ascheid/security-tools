@@ -48,5 +48,5 @@ jobs:
           
       - name: upload results
         run: |
-          curl -H 'Accept: application/vnd.github+json' -H "Authorization: token $githubPAT" 'https://api.github.com/repos/'$GITHUB_REPOSITORY'/dependency-graph/snapshots' -d dependency-results.sbom.json
+          curl -H 'Accept: application/vnd.github+json' -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" 'https://api.github.com/repos/'$GITHUB_REPOSITORY'/dependency-graph/snapshots' -d dependency-results.sbom.json
 
