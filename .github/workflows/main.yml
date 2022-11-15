@@ -1,0 +1,51 @@
+name: Trivy
+
+env:
+  GITHUB_SHA: ${{ github.sha }}
+  REGISTRY: sentinel #127893201980.dkr.ecr.ca-central-1.amazonaws.com/scan-files
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8
+
+      - name: Build container
+        working-directory: ./images/cloud_asset_inventory/sentinel_neo4j_forwarder
+        run: |
+          docker build \
+            --build-arg git_sha=$GITHUB_SHA \
+            -t $REGISTRY/sentinel:$GITHUB_SHA \
+            -t $REGISTRY/sentinel:latest .
+      
+      - name: install trivy
+        run: |
+          apt-get update
+          apt-get install wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/trivy.list
+          apt-get update
+          apt-get install trivy
+        
+      - name: run trivy docker
+        run: |
+          trivy image \
+          --format github \
+          --vuln-type os,library \
+          --severity UNKNOW,LOW,MEDIUM,HIGH,CRITICAL \
+          --output dependency-results.sbom.json $REGISTRY/sentinel
+
+      - name: replace apk with alpine
+        run: |
+          sed -i 's/pkg:apk/pkg:alpine/g' dependency-results.sbom.json
+          cat dependency-results.sbom.json
